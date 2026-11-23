@@ -27,10 +27,7 @@ end
 
 matlabbatch{1}.spm.stats.fmri_spec = spec;
 for c = 1:numel(contrasts)
-    weights = contrasts(c).weights(:)';
-    assert(numel(weights) == nInteraction && all(isfinite(weights)) && any(weights ~= 0), ...
-        'Contrast "%s" requires one weight per condition and at least one nonzero weight.', ...
-        contrasts(c).name);
+    weights = contrasts(c).weights;
     % Interactions come first. All main effects, confounds, and constant get zero weight.
     contrast.consess{c}.tcon.name = contrasts(c).name;
     contrast.consess{c}.tcon.weights = [weights, zeros(1, size(design, 2) + 1 - nInteraction)];

@@ -1,13 +1,13 @@
 function PBI = fit(spmFile, petMap, grayMatterMask, outputDir, options)
 % Run single-session volume PBI from an estimated SPM12 task GLM.
-% Contrasts is an optional struct array with name and weights fields.
-% Weights follow the condition order in the source SPM design.
+% Each contrast names its positive and negative conditions. For a weighted
+% contrast, supply conditions and their corresponding weights instead.
 arguments
     spmFile (1,:) char
     petMap (1,:) char
     grayMatterMask (1,:) char
     outputDir (1,:) char
-    options.Contrasts struct = struct('name', {}, 'weights', {})
+    options.Contrasts struct = struct([])
 end
 source = load(spmFile, 'SPM');
 SPM = source.SPM;
@@ -17,6 +17,8 @@ assert(isfield(SPM, 'xCon') && ~isempty(SPM.xCon) && strcmp(SPM.xCon(1).STAT, 'F
 assert(all(arrayfun(@(u) numel(u.name) == 1, SPM.Sess.U)) && size(SPM.xBF.bf, 2) == 1, ...
     'PBI requires one canonical HRF basis function and no parametric or temporal modulators.');
 
+conditionNames = arrayfun(@(u) string(u.name{1}), SPM.Sess.U);
+contrasts = resolve_contrasts(options.Contrasts, conditionNames);
 outputDir = new_output_dir(outputDir);
 [~, sourceFile] = fileattrib(spmFile);
 
@@ -42,5 +44,5 @@ geometry.pinfo = [1; 0; 0];
 spm_write_vol(geometry, double(mask));
 
 save(fullfile(outputDir, 'PBI.mat'), 'PBI');
-PBI_1st_level(SPM, PBI, outputDir, options.Contrasts);
+PBI_1st_level(SPM, PBI, outputDir, contrasts);
 end
