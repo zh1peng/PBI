@@ -34,7 +34,7 @@ You can also pass an existing single-session `SPM.mat` directly. It must have on
 
 Each contrast has one weight per interaction in source condition order (`SPM.Sess.U`). For an eight-condition model starting with `no_win`, `small_win`, `big_win`, use `[-1 0 1 0 0 0 0 0]` for big versus no anticipation. Supply several contrasts as a struct array, or omit `Contrasts` to estimate the design alone.
 
-- The returned struct and `PBI.mat` contain the mean-centered observed BOLD projection (`phys`), its deconvolved counterpart (`seed_microtime`), condition columns, and condition-specific interactions.
+- The returned struct and `PBI.mat` contain the mean-centered observed BOLD projection (`phys`), the microtime seed (`seed_microtime`), condition columns, and condition-specific interactions. For the microtime seed, PBI projects the SPM-adjusted BOLD onto the same PET weights and deconvolves that series once. The shared design, fixed covariances, and zero prior mean make this equivalent to projecting the voxelwise deconvolutions.
 - `seed_mask.nii` records the voxels used for both PET projections.
 - The final `SPM.mat` includes task main effects, `seed_phys_bold`, interactions, and any source nuisance columns. SPM writes `con_*.nii` and `spmT_*.nii` for requested interaction contrasts.
 

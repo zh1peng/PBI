@@ -31,8 +31,8 @@ sourceFolder = fileparts(sourceFile.Name);
 caller = pwd;
 restoreFolder = onCleanup(@() cd(caller));
 cd(sourceFolder);
-[neural, bold] = PBI_PEB_decon(SPM, mask);
-[PBI, valid] = PBI_build_interaction(neural, bold, pet, SPM);
+[PBI, valid] = PBI_PEB_decon(SPM, mask, pet);
+PBI = PBI_build_interaction(PBI, SPM);
 
 % Save the effective mask after excluding locations with nonfinite data.
 mask(mask) = valid;

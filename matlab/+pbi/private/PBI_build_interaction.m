@@ -1,14 +1,5 @@
-function [PBI, valid] = PBI_build_interaction(neural, bold, pet, SPM)
-% Project matched microtime and scan-level data onto the same PET template.
-
-valid = all(isfinite(neural), 1) & all(isfinite(bold), 1);
-pet = pet(valid);
-assert(numel(pet) >= 2 && max(pet) > min(pet), ...
-    'The PET template must vary across the retained voxels.');
-centered = pet - mean(pet);
-weights = centered / sum(centered.^2);
-PBI.seed_microtime = neural(:, valid) * weights;
-PBI.phys = spm_detrend(bold(:, valid) * weights);
+function PBI = PBI_build_interaction(PBI, SPM)
+% Build the condition-specific interactions from the microtime seed.
 
 nScan = SPM.nscan;
 sample = ((0:nScan-1) * SPM.xBF.T + SPM.xBF.T0)';
