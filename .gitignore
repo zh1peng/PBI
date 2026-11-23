@@ -21,3 +21,7 @@ derivatives/
 *.mgz
 *.mgh
 *.mat
+
+# Internal datasets and analysis scripts
+/test_data/
+/test_code/

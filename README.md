@@ -21,7 +21,7 @@ Both analyses use fMRI-derived signals and a fixed PET spatial reference. The qu
 | [visualization/](visualization/) | Shared plots for quality control and results |
 | [docs/](docs/methods.md) | Model specification and validation targets |
 
-The [MATLAB/SPM volume gPPI workflow](matlab/) is available for single-session data. The template-informed task response workflow, Python implementation, surface support, and plotting modules are planned.
+The [MATLAB API](matlab/) provides `pbi.task_glm` to estimate a single-session task model and `pbi.fit` to run PET-informed gPPI from an estimated model. The template-informed task response workflow, Python implementation, surface support, and plotting modules are planned.
 
 The first target is a volume workflow with a shared synthetic reference case for both languages. The surface extension will support a volume-defined seed with cortical targets. A seed estimated from the cortical surface is a separate analysis choice with different anatomical coverage.
 
