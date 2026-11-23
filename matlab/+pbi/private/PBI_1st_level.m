@@ -26,6 +26,11 @@ for j = 1:size(design, 2)
 end
 
 matlabbatch{1}.spm.stats.fmri_spec = spec;
+matlabbatch{2}.spm.stats.fmri_est.spmmat(1) = cfg_dep('fMRI model specification: SPM.mat File', ...
+    substruct('.','val','{}',{1},'.','val','{}',{1},'.','val','{}',{1}), substruct('.','spmmat'));
+matlabbatch{2}.spm.stats.fmri_est.write_residuals = 0;
+matlabbatch{2}.spm.stats.fmri_est.method.Classical = 1;
+
 for c = 1:numel(contrasts)
     weights = contrasts(c).weights;
     % Interactions come first. All main effects, confounds, and constant get zero weight.
@@ -34,19 +39,11 @@ for c = 1:numel(contrasts)
     contrast.consess{c}.tcon.sessrep = 'none';
 end
 
-spm_jobman('run', matlabbatch);
-spmFile = {fullfile(outputDir, 'SPM.mat')};
-clear matlabbatch
-matlabbatch{1}.spm.stats.fmri_est.spmmat = spmFile;
-matlabbatch{1}.spm.stats.fmri_est.write_residuals = 0;
-matlabbatch{1}.spm.stats.fmri_est.method.Classical = 1;
-spm_jobman('run', matlabbatch);
-
 if ~isempty(contrasts)
-    contrast.spmmat = spmFile;
+    contrast.spmmat(1) = cfg_dep('Model estimation: SPM.mat File', ...
+        substruct('.','val','{}',{2},'.','val','{}',{1},'.','val','{}',{1}), substruct('.','spmmat'));
     contrast.delete = 0;
-    clear matlabbatch
-    matlabbatch{1}.spm.stats.con = contrast;
-    spm_jobman('run', matlabbatch);
+    matlabbatch{3}.spm.stats.con = contrast;
 end
+spm_jobman('run', matlabbatch);
 end
