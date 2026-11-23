@@ -1,0 +1,5 @@
+# PET template resources
+
+The [starter catalog](catalog.tsv) lists five bilateral cortical PET annotations from the Beliveau serotonin atlas. Each row records the molecular target, neuromaps identifier, space, density, coverage, data license, and citation. Obtain the maps from the [neuromaps annotation catalog](https://neuromaps-main.readthedocs.io/en/latest/listofmaps.html) and cite the original [Beliveau et al. (2017)](https://pubmed.ncbi.nlm.nih.gov/28053035/) paper. The annotation catalog specifies that the MNI152 versions of these entries are for subcortical use. Check coverage and intended use before selecting a volumetric template.
+
+For future catalog entries, record the source, tracer or annotation ID, molecular target, space, resolution or surface density, valid coverage, reference tissue or quantification metric when documented, and asset-specific license. The [Hansen receptor atlas](https://github.com/netneurolab/hansen_receptors) and [JuSpace](https://github.com/juryxy/JuSpace) are additional sources to review per map. PET images are obtained from their respective providers.

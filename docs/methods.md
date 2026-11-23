@@ -1,0 +1,14 @@
+# PBI model and validation
+
+## Model
+
+1. **Extract a template-informed time series.** Within the seed mask, regress the fMRI spatial pattern at each time point on a fixed PET template and an intercept. Retain the template coefficient as a function of time. Record the template, support mask, normalization, preprocessing, and time grid. Treat a single-template fit and a fit conditional on other templates as different estimands.
+2. **Estimate task response.** Fit the scan-level BOLD component with HRF-convolved condition regressors and confounds. Retain task-related variation during extraction. Return condition estimates and contrasts such as large-reward versus no-reward anticipation.
+3. **Estimate task-modulated coupling.** For the deconvolution-based gPPI model, multiply the microtime physiological signal by each condition vector before HRF convolution and sampling at scan times. Fit target BOLD with condition main effects, a scan-level physiological main effect, the condition-specific interaction columns, and confounds. Contrast interaction coefficients to estimate the difference in coupling. Preserve the physiological signal and named design columns so this model can be audited.
+
+## Implementation and validation
+
+- Use the same inputs and named outputs to compare the MATLAB/SPM and Python workflows. Compare template coefficients, sampled design columns, and contrast estimates before comparing statistic maps.
+- Document the deconvolution, temporal filtering, and autocorrelation model for each implementation. Specify numerical tolerances for operations intended to match and quantify differences when the algorithms differ.
+- Start with synthetic volume data with known task responses and coupling. Include a case with nonzero common coupling and zero condition difference, and a case with a known interaction. Then validate with a shareable task fMRI example.
+- Keep seed extraction and target geometry separate. Verify alignment of PET and fMRI at the seed, and preserve the target grid or vertex mapping in the output. For a volume-defined seed and surface targets, the same seed time series can be used with each target geometry. A cortical-only seed changes the extraction domain and should be documented accordingly.
