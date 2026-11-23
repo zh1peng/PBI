@@ -1,4 +1,4 @@
-function PBI_1st_level(SPM, PBI, outputDir, contrasts)
+function PBI_1st_level(SPM, PBI, outputDir, contrasts, scans)
 % Estimate the PBI GLM with both main effects and condition interactions.
 
 assert(isfield(PBI, 'phys') && isequal(size(PBI.phys), [SPM.nscan 1]) && ...
@@ -15,7 +15,7 @@ spec.timing.units = 'secs';
 spec.timing.RT = SPM.xY.RT;
 spec.timing.fmri_t = SPM.xBF.T;
 spec.timing.fmri_t0 = SPM.xBF.T0;
-spec.sess.scans = cellstr(SPM.xY.P);
+spec.sess.scans = scans;
 spec.sess.hpf = SPM.xX.K(1).HParam;
 spec.global = 'None';
 spec.mthresh = 0.8;

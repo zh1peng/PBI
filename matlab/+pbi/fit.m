@@ -1,5 +1,7 @@
 function PBI = fit(spmFile, petMap, grayMatterMask, outputDir, options)
-% Run single-session volume PBI from an estimated SPM12 task GLM.
+% Run PBI with a volume-defined seed and optional surface/grayordinate targets.
+% TargetBold accepts paired GIFTI time series (left, right) or one CIFTI dtseries.
+% TargetMeshes supplies the corresponding left and right surface geometries.
 % Each contrast names its positive and negative conditions. For a weighted
 % contrast, supply conditions and their corresponding weights instead.
 arguments
@@ -8,6 +10,8 @@ arguments
     grayMatterMask (1,:) char
     outputDir (1,:) char
     options.Contrasts struct = struct([])
+    options.TargetBold string = strings(1,0)
+    options.TargetMeshes string = strings(1,0)
 end
 source = load(spmFile, 'SPM');
 SPM = source.SPM;
@@ -44,5 +48,11 @@ geometry.pinfo = [1; 0; 0];
 spm_write_vol(geometry, double(mask));
 
 save(fullfile(outputDir, 'PBI.mat'), 'PBI');
-PBI_1st_level(SPM, PBI, outputDir, contrasts);
+if isempty(options.TargetBold)
+    assert(isempty(options.TargetMeshes), 'TargetMeshes requires TargetBold.');
+    PBI_1st_level(SPM, PBI, outputDir, contrasts, cellstr(SPM.xY.P));
+else
+    cd(caller); % Resolve target paths relative to the caller, like the seed inputs.
+    fit_surface_targets(SPM, PBI, outputDir, contrasts, options.TargetBold, options.TargetMeshes);
+end
 end
