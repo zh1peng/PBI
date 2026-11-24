@@ -12,17 +12,17 @@ The current MATLAB/SPM12 implementation fits a single-run generalized psychophys
 
 **Figure 1.** The same fixed biological map supplies spatial weights for two time series. The physiological main effect enters the target model at scan resolution. The deconvolved time series is multiplied by each centered condition at microtime resolution, convolved with the hemodynamic response function (HRF), then sampled at scan times. [Editable PowerPoint figure](docs/figures/pbi-workflow.pptx)
 
-1. **Estimate expression of the map.** At each scan, regress the spatial pattern of observed BOLD on the map values and an intercept within the seed mask. The slope is the subject's expression of that spatial pattern at that scan. Its mean-centered time series $s(t)$ is the physiological main effect (`seed_phys_bold` in SPM).
-2. **Build the interactions.** Use the source task GLM to adjust BOLD for effects outside the task effects of interest. Project the adjusted data onto the same map and estimate the latent seed $\beta_{\mathrm{bio}}(\tau)$ on the microtime grid with SPM's `spm_PEB`. The shared temporal model and fixed covariances allow one deconvolution per seed. Multiplying this seed by each centered condition before HRF convolution gives the interaction regressors $I_c(t)$.
-3. **Fit the target BOLD signal.** At each target voxel or vertex $v$, fit the convolved task main effects $P_c(t)$, the observed seed $s(t)$, the interactions $I_c(t)$, and the source nuisance regressors $N(t)$ together:
+1. **Estimate expression of the map.** At each scan, regress the spatial pattern of observed BOLD on the map values and an intercept within the seed mask. The slope is the subject's expression of that spatial pattern at that scan. Its mean-centered time series $X_{\mathrm{seed}}$ is the physiological main effect (`seed_phys_bold` in SPM).
+2. **Build the interactions.** Use the source task GLM to adjust BOLD for effects outside the task effects of interest. Project the adjusted data onto the same map and estimate the latent seed $\beta_{\mathrm{bio}}(\tau)$ on the microtime grid with SPM's `spm_PEB`. The shared temporal model and fixed covariances allow one deconvolution per seed. Multiplying this seed by each centered condition before HRF convolution gives one interaction regressor per condition.
+3. **Fit the target BOLD signal.** The equation shows the terms for one condition at one target location. The full model includes a task column and a PBI column for each condition, a single seed column, and the nuisance regressors.
 
 $$
-Y_v(t) = \alpha_v + \sum_c b_{vc}P_c(t) + \gamma_v s(t) + \sum_c d_{vc}I_c(t) + N(t)\theta_v + \varepsilon_v(t).
+Y = \beta_0 + \beta_{\mathrm{psycho}} \times X_{\mathrm{psycho}} + \beta_{\mathrm{PBI}} \times \mathrm{HRF}(\mathrm{condition} \times \beta_{\mathrm{bio}}) + \beta_{\mathrm{seed}} \times X_{\mathrm{seed}} + \beta_n \times \mathrm{nuisance} + \varepsilon.
 $$
 
-The seed main effect $\gamma_v s(t)$ accounts for coupling shared across conditions. Each $d_{vc}$ estimates how coupling varies with condition $c$ after accounting for that shared signal and the mean task response.
+$X_{\mathrm{psycho}}$ is the HRF-convolved task regressor. Inside the interaction, `condition` is the centered task vector before convolution. HRF(·) means convolve the product and sample it at scan times. $X_{\mathrm{seed}}$ is the observed seed time series. Its coefficient accounts for coupling shared across conditions.
 
-For a monetary incentive delay (MID) task, $d_{v,\mathrm{big}}-d_{v,\mathrm{no}}>0$ means the estimated coupling slope at $v$ is higher during big-win anticipation than during no-win anticipation. The biological label identifies the spatial reference for the fMRI component. For example, a 5-HT1A-informed contrast estimates a difference in functional coupling. Establishing a change in serotonin release would require an independent measurement. A separate planned analysis will test whether task conditions predict the scan-level component $s(t)$ itself.
+For a monetary incentive delay (MID) task, $\beta_{\mathrm{PBI,big}}-\beta_{\mathrm{PBI,no}}>0$ means the estimated coupling slope at that location is higher during big-win anticipation than during no-win anticipation. The biological label identifies the spatial reference for the fMRI component. For example, a 5-HT1A-informed contrast estimates a difference in functional coupling. Establishing a change in serotonin release would require an independent measurement. A separate planned analysis will test whether task conditions predict the scan-level component $X_{\mathrm{seed}}$ itself.
 
 ## Quick start with MATLAB
 
