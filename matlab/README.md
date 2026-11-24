@@ -38,7 +38,7 @@ Use the exact, case-sensitive condition names from `SPM.Sess.U`. The example est
 
 For a weighted combination, pair each weight with a named condition. For example, the mean of big and small win versus no win can be written as `struct('name', 'mean_win-no', 'conditions', ["big_win","small_win","no_win"], 'weights', [0.5 0.5 -1])`.
 
-- The returned struct and `PBI.mat` contain the mean-centered observed BOLD projection (`Bio`), the deconvolved Bio time series (`beta_bio_microtime`), condition columns, and condition-specific interactions. For the deconvolved Bio time series, PBI projects the SPM-adjusted BOLD onto the same template weights and deconvolves that series once. The shared design, fixed covariances, and zero prior mean make this equivalent to projecting the voxelwise deconvolutions.
+- The returned struct and `PBI.mat` contain the mean-centered observed BOLD projection (`bio`), the deconvolved Bio time series (`beta_bio_microtime`), condition columns, and condition-specific interactions. For the deconvolved Bio time series, PBI projects the SPM-adjusted BOLD onto the same template weights and deconvolves that series once. The shared design, fixed covariances, and zero prior mean make this equivalent to projecting the voxelwise deconvolutions.
 - `bio_mask.nii` records the voxels used for both template projections.
 - The final `SPM.mat` includes task main effects, `Bio`, interactions, and any source nuisance columns. SPM writes `con_*.nii` and `spmT_*.nii` for requested interaction contrasts.
 

@@ -47,7 +47,7 @@ result = pbi.fit(spmFile, '5HT1A_template.nii', 'gm_mask.nii', ...
     'pbi_5HT1A', Contrasts=bigVsNo);
 ```
 
-对于体积目标，`pbi_5HT1A/con_0001.nii` 是耦合差异的效应图，`spmT_0001.nii` 是对应的 T 图。用 `result.Bio` 和 `bio_mask.nii` 核对 Bio 时间序列及提取范围，用输出的 `SPM.mat` 查看设计矩阵。如果直接使用已有源模型，每个条件应有一个无调制的标准 HRF 回归量，首个对比应为覆盖感兴趣任务效应的 F 对比。左右半球 GIFTI 和混合 CIFTI 的调用示例见 [MATLAB API 指南](matlab/README.md)。
+对于体积目标，`pbi_5HT1A/con_0001.nii` 是耦合差异的效应图，`spmT_0001.nii` 是对应的 T 图。用 `result.bio` 和 `bio_mask.nii` 核对 Bio 时间序列及提取范围，用输出的 `SPM.mat` 查看设计矩阵。如果直接使用已有源模型，每个条件应有一个无调制的标准 HRF 回归量，首个对比应为覆盖感兴趣任务效应的 F 对比。左右半球 GIFTI 和混合 CIFTI 的调用示例见 [MATLAB API 指南](matlab/README.md)。
 
 ## 资源与相关研究
 

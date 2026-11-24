@@ -47,7 +47,7 @@ result = pbi.fit(spmFile, '5HT1A_template.nii', 'gm_mask.nii', ...
     'pbi_5HT1A', Contrasts=bigVsNo);
 ```
 
-For a volume target, open `pbi_5HT1A/con_0001.nii` for the coupling difference and `spmT_0001.nii` for its T statistic. Inspect `result.Bio` and `bio_mask.nii` for the Bio time series and its spatial coverage, and the output `SPM.mat` for the design. An existing source GLM needs one unmodulated canonical HRF regressor per condition and an F contrast covering the task effects of interest in the first contrast slot. The API guide includes examples for paired GIFTI and mixed CIFTI targets. [MATLAB API guide](matlab/README.md)
+For a volume target, open `pbi_5HT1A/con_0001.nii` for the coupling difference and `spmT_0001.nii` for its T statistic. Inspect `result.bio` and `bio_mask.nii` for the Bio time series and its spatial coverage, and the output `SPM.mat` for the design. An existing source GLM needs one unmodulated canonical HRF regressor per condition and an F contrast covering the task effects of interest in the first contrast slot. The API guide includes examples for paired GIFTI and mixed CIFTI targets. [MATLAB API guide](matlab/README.md)
 
 ## Resources and related work
 

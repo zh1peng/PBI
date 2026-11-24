@@ -19,7 +19,7 @@ assert(numel(mapValues) >= 2 && max(mapValues) > min(mapValues), ...
     'The biological map must vary across the retained voxels.');
 centered = mapValues - mean(mapValues);
 weights = centered / sum(centered.^2);
-PBI.Bio = spm_detrend(bold(:, valid) * weights);
+PBI.bio = spm_detrend(bold(:, valid) * weights);
 adjustedBio = adjusted(:, valid) * weights;
 
 nuisance = [SPM.xX.xKXs.X(:, [SPM.xX.iB SPM.xX.iG]), SPM.xX.K(1).X0];
