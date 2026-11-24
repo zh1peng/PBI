@@ -51,6 +51,6 @@ result = pbi.fit(spmFile, '5HT1A_template.nii', 'gm_mask.nii', ...
 
 ## 资源与相关研究
 
-[方法说明](docs/methods.md)记录了模型及验证目标，[PET 资源目录](resources/pet/)列出了模板空间和覆盖范围。独立 Python 实现与可视化模块尚在规划中。
+[方法说明](docs/methods.md)记录了模型及验证目标。独立 Python 版本尚在规划中。PET 模板的可用空间及解剖覆盖范围可在 [neuromaps 图谱目录](https://neuromaps-main.readthedocs.io/en/latest/listofmaps.html)中查看。
 
 PBI 借鉴 [REACT](https://doi.org/10.1016/j.neuroimage.2019.04.007) 提取空间图谱引导的 fMRI 成分，并采用 [gPPI](https://doi.org/10.1016/j.neuroimage.2012.03.068) 估计条件特异性耦合。分子图谱引导的任务 fMRI 应用可参见 [Wong 等（2022）](https://doi.org/10.1177/02698811221092509)与 [Boucherie 等（2023）](https://doi.org/10.1177/02698811231211154)。

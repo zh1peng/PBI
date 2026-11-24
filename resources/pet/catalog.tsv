@@ -1,6 +1,0 @@
-target	target_type	source	annotation	space	density	coverage	license	citation
-5-HT1A	receptor	beliveau2017	cumi101	fsaverage	164k	bilateral cortex	CC BY-NC-SA 4.0	https://pubmed.ncbi.nlm.nih.gov/28053035/
-5-HT1B	receptor	beliveau2017	az10419369	fsaverage	164k	bilateral cortex	CC BY-NC-SA 4.0	https://pubmed.ncbi.nlm.nih.gov/28053035/
-5-HT2A	receptor	beliveau2017	cimbi36	fsaverage	164k	bilateral cortex	CC BY-NC-SA 4.0	https://pubmed.ncbi.nlm.nih.gov/28053035/
-5-HT4	receptor	beliveau2017	sb207145	fsaverage	164k	bilateral cortex	CC BY-NC-SA 4.0	https://pubmed.ncbi.nlm.nih.gov/28053035/
-5-HTT	transporter	beliveau2017	dasb	fsaverage	164k	bilateral cortex	CC BY-NC-SA 4.0	https://pubmed.ncbi.nlm.nih.gov/28053035/

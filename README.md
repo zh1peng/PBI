@@ -51,6 +51,6 @@ For a volume target, open `pbi_5HT1A/con_0001.nii` for the coupling difference a
 
 ## Resources and related work
 
-The [method specification](docs/methods.md) describes the model and validation targets. The [PET resource catalog](resources/pet/) records template space and coverage. A standalone Python implementation and visualization modules are planned.
+The [method specification](docs/methods.md) describes the model and validation targets. A standalone Python implementation is planned. For PET templates, check the available spaces and anatomical coverage in the [neuromaps catalog](https://neuromaps-main.readthedocs.io/en/latest/listofmaps.html).
 
 PBI draws on [REACT](https://doi.org/10.1016/j.neuroimage.2019.04.007) for spatially informed fMRI components and [gPPI](https://doi.org/10.1016/j.neuroimage.2012.03.068) for condition-specific coupling. Related molecularly informed task-fMRI applications include [Wong et al. (2022)](https://doi.org/10.1177/02698811221092509) and [Boucherie et al. (2023)](https://doi.org/10.1177/02698811231211154).
