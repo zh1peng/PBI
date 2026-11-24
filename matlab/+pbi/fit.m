@@ -1,12 +1,12 @@
-function PBI = fit(spmFile, petMap, grayMatterMask, outputDir, options)
-% Run PBI with a volume-defined seed and optional surface/grayordinate targets.
+function PBI = fit(spmFile, bioMap, grayMatterMask, outputDir, options)
+% Run PBI with a volume-defined component and optional surface/grayordinate targets.
 % TargetBold accepts paired GIFTI time series (left, right) or one CIFTI dtseries.
 % TargetMeshes supplies the corresponding left and right surface geometries.
 % Each contrast names its positive and negative conditions. For a weighted
 % contrast, supply conditions and their corresponding weights instead.
 arguments
     spmFile (1,:) char
-    petMap (1,:) char
+    bioMap (1,:) char
     grayMatterMask (1,:) char
     outputDir (1,:) char
     options.Contrasts struct = struct([])
@@ -31,18 +31,18 @@ spm_jobman('initcfg');
 
 % Read the caller's mask/template paths before changing to the source GLM folder.
 sourceFolder = fileparts(sourceFile.Name);
-[mask, pet, geometry] = PBI_create_mask(fullfile(sourceFolder, 'mask.nii'), ...
-    grayMatterMask, petMap, SPM.xY.VY(1));
+[mask, mapValues, geometry] = PBI_create_mask(fullfile(sourceFolder, 'mask.nii'), ...
+    grayMatterMask, bioMap, SPM.xY.VY(1));
 
 caller = pwd;
 restoreFolder = onCleanup(@() cd(caller));
 cd(sourceFolder);
-[PBI, valid] = PBI_PEB_decon(SPM, mask, pet);
+[PBI, valid] = PBI_PEB_decon(SPM, mask, mapValues);
 PBI = PBI_build_interaction(PBI, SPM);
 
 % Save the effective mask after excluding locations with nonfinite data.
 mask(mask) = valid;
-geometry.fname = fullfile(outputDir, 'seed_mask.nii');
+geometry.fname = fullfile(outputDir, 'bio_mask.nii');
 geometry.dt = [spm_type('uint8') 0];
 geometry.pinfo = [1; 0; 0];
 spm_write_vol(geometry, double(mask));
@@ -52,7 +52,7 @@ if isempty(options.TargetBold)
     assert(isempty(options.TargetMeshes), 'TargetMeshes requires TargetBold.');
     PBI_1st_level(SPM, PBI, outputDir, contrasts, cellstr(SPM.xY.P));
 else
-    cd(caller); % Resolve target paths relative to the caller, like the seed inputs.
+    cd(caller); % Resolve target paths relative to the caller, like the biological map.
     fit_surface_targets(SPM, PBI, outputDir, contrasts, options.TargetBold, options.TargetMeshes);
 end
 end

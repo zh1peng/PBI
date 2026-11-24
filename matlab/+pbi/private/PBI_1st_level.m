@@ -1,14 +1,14 @@
 function PBI_1st_level(SPM, PBI, outputDir, contrasts, scans)
 % Estimate the PBI GLM with both main effects and condition interactions.
 
-assert(isfield(PBI, 'phys') && isequal(size(PBI.phys), [SPM.nscan 1]) && ...
-    all(isfinite(PBI.phys)) && max(PBI.phys) > min(PBI.phys), ...
+assert(isfield(PBI, 'Bio') && isequal(size(PBI.Bio), [SPM.nscan 1]) && ...
+    all(isfinite(PBI.Bio)) && max(PBI.Bio) > min(PBI.Bio), ...
     'PBI requires a nonconstant physiological main effect at scan resolution.');
 
 nInteraction = size(PBI.int, 2);
 nuisance = SPM.Sess.C;
-names = [PBI.intname, PBI.psyname, {'seed_phys_bold'}, nuisance.name(:)'];
-design = [PBI.int, PBI.psyhrf, PBI.phys, nuisance.C];
+names = [PBI.intname, PBI.psyname, {'Bio'}, nuisance.name(:)'];
+design = [PBI.int, PBI.psyhrf, PBI.Bio, nuisance.C];
 
 spec.dir = {outputDir};
 spec.timing.units = 'secs';

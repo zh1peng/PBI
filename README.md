@@ -12,8 +12,8 @@ The current MATLAB/SPM12 implementation fits a single-run generalized psychophys
 
 **Figure 1.** The same fixed biological map supplies spatial weights for two time series. The physiological main effect enters the target model at scan resolution. The deconvolved time series is multiplied by each centered condition at microtime resolution, convolved with the hemodynamic response function (HRF), then sampled at scan times. [Editable PowerPoint figure](docs/figures/pbi-workflow.pptx)
 
-1. **Estimate expression of the map.** At each scan, regress the spatial pattern of observed BOLD on the map values and an intercept within the extraction mask. The slope is the subject's expression of that spatial pattern at that scan. Its mean-centered time series $\mathrm{Bio}$ is the physiological main effect (`seed_phys_bold` in SPM).
-2. **Build the interactions.** Use the source task GLM to adjust BOLD for effects outside the task effects of interest. Project the adjusted data onto the same map and estimate the latent component time series $\beta_{\mathrm{bio}}(\tau)$ on the microtime grid with SPM's `spm_PEB`. The shared temporal model and fixed covariances allow one deconvolution per map. Multiplying this time series by each centered condition before HRF convolution gives one interaction regressor per condition.
+1. **Estimate expression of the map.** At each scan, regress the spatial pattern of observed BOLD on the map values and an intercept within the extraction mask. The slope is the subject's expression of that spatial pattern at that scan. Its mean-centered time series $\mathrm{Bio}$ is the physiological main effect (`Bio` in SPM).
+2. **Build the interactions.** Use the source task GLM to adjust BOLD for effects outside the task effects of interest. Project the adjusted data onto the same map and estimate the latent component time series $\beta_{\mathrm{bio}}(\tau)$ on the microtime grid with SPM's `spm_PEB`. The returned field is `result.beta_bio_microtime`. The shared temporal model and fixed covariances allow one deconvolution per map. Multiplying this time series by each centered condition before HRF convolution gives one interaction regressor per condition.
 3. **Fit the target BOLD signal.** The equation shows the terms for one condition at one target location. The full model includes a task column and a PBI column for each condition, one Bio main-effect column, and the nuisance regressors.
 
 $$
@@ -47,7 +47,7 @@ result = pbi.fit(spmFile, '5HT1A_template.nii', 'gm_mask.nii', ...
     'pbi_5HT1A', Contrasts=bigVsNo);
 ```
 
-For a volume target, open `pbi_5HT1A/con_0001.nii` for the coupling difference and `spmT_0001.nii` for its T statistic. Inspect `result.phys` and `seed_mask.nii` for the Bio time series and its spatial coverage, and the output `SPM.mat` for the design. An existing source GLM needs one unmodulated canonical HRF regressor per condition and an F contrast covering the task effects of interest in the first contrast slot. The API guide includes examples for paired GIFTI and mixed CIFTI targets. [MATLAB API guide](matlab/README.md)
+For a volume target, open `pbi_5HT1A/con_0001.nii` for the coupling difference and `spmT_0001.nii` for its T statistic. Inspect `result.Bio` and `bio_mask.nii` for the Bio time series and its spatial coverage, and the output `SPM.mat` for the design. An existing source GLM needs one unmodulated canonical HRF regressor per condition and an F contrast covering the task effects of interest in the first contrast slot. The API guide includes examples for paired GIFTI and mixed CIFTI targets. [MATLAB API guide](matlab/README.md)
 
 ## Resources and related work
 

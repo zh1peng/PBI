@@ -1,5 +1,5 @@
 function PBI = PBI_build_interaction(PBI, SPM)
-% Build the condition-specific interactions from the microtime seed.
+% Build the condition-specific interactions from the deconvolved Bio time series.
 
 nScan = SPM.nscan;
 sample = ((0:nScan-1) * SPM.xBF.T + SPM.xBF.T0)';
@@ -18,7 +18,7 @@ for c = 1:nCondition
 
     % SPM pads onset functions with 32 microtime bins.
     psy = spm_detrend(full(condition.u(33:end, 1)));
-    interaction = conv(psy .* PBI.seed_microtime, hrf);
+    interaction = conv(psy .* PBI.beta_bio_microtime, hrf);
     PBI.int(:, c) = spm_detrend(interaction(sample));
 
     % Use the original task main-effect column at the scan time grid.

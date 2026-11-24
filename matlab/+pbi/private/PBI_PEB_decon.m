@@ -1,5 +1,5 @@
-function [PBI, valid] = PBI_PEB_decon(SPM, mask, pet)
-% Estimate observed and deconvolved time series for the same PET component.
+function [PBI, valid] = PBI_PEB_decon(SPM, mask, mapValues)
+% Estimate observed and deconvolved time series for the same biological map.
 % Run from the source GLM folder for relative SPM image paths.
 
 nScan = SPM.nscan;
@@ -14,13 +14,13 @@ W = SPM.xX.W;
 filtered = spm_filter(SPM.xX.K, W * bold);
 adjusted = filtered - spm_FcUtil('Y0', SPM.xCon(1), SPM.xX.xKXs, beta);
 valid = all(isfinite(adjusted), 1) & all(isfinite(bold), 1);
-pet = pet(valid);
-assert(numel(pet) >= 2 && max(pet) > min(pet), ...
-    'The PET template must vary across the retained voxels.');
-centered = pet - mean(pet);
+mapValues = mapValues(valid);
+assert(numel(mapValues) >= 2 && max(mapValues) > min(mapValues), ...
+    'The biological map must vary across the retained voxels.');
+centered = mapValues - mean(mapValues);
 weights = centered / sum(centered.^2);
-PBI.phys = spm_detrend(bold(:, valid) * weights);
-adjustedSeed = adjusted(:, valid) * weights;
+PBI.Bio = spm_detrend(bold(:, valid) * weights);
+adjustedBio = adjusted(:, valid) * weights;
 
 nuisance = [SPM.xX.xKXs.X(:, [SPM.xX.iB SPM.xX.iG]), SPM.xX.K(1).X0];
 nuisance = nuisance(:, any(nuisance, 1));
@@ -46,7 +46,7 @@ model{2}.C = blkdiag(speye(nScan) * nScan / sum(response(:).^2), ...
     speye(nNuisance) * 1e6);
 
 % Numeric, shared covariances and a zero prior mean make this PEB linear
-% in the adjusted data, so PET projection commutes with deconvolution.
-estimate = spm_PEB(adjustedSeed, model);
-PBI.seed_microtime = spm_detrend(basis * estimate{2}.E(1:nScan));
+% in the adjusted data, so map projection commutes with deconvolution.
+estimate = spm_PEB(adjustedBio, model);
+PBI.beta_bio_microtime = spm_detrend(basis * estimate{2}.E(1:nScan));
 end
