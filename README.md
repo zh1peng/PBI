@@ -1,30 +1,56 @@
-# PBI | Psychobiological Interaction
+# Psychobiological Interaction (PBI)
 
-PBI is a research toolkit in development for PET-informed analysis of task fMRI. A reference PET map defines a spatial component, and a spatial regression estimates how strongly each subject's fMRI expresses that component over time.
+English · [简体中文](README.zh-CN.md)
 
-The project focuses on two questions:
+PBI uses a biological map to define a distributed fMRI seed and asks **where coupling with that seed changes across task conditions**. The map describes how a biological feature varies across brain locations. Examples include a PET receptor or transporter map, a regional gene-expression map derived from the [Allen Human Brain Atlas](https://human.brain-map.org/), or a structural map such as regional cortical thickness. Each subject's task fMRI supplies the time-varying signal.
 
-| Analysis | Outcome | Question |
-| --- | --- | --- |
-| Template-informed task response | A condition effect or contrast per subject and template | Does the expression of the PET-defined component change across task conditions? |
-| Template-informed gPPI | A spatial map per subject, template, and contrast | Does coupling between that component and other brain locations differ across task conditions? |
+The current MATLAB/SPM12 implementation fits a single-run generalized psychophysiological interaction (gPPI) model with one volume-defined seed and volume, GIFTI or CIFTI targets. We have tested the seed workflow with PET templates. Gene-expression and structural maps are candidate inputs that require appropriate spatial coverage, registration and validation.
 
-Both analyses use fMRI-derived signals and a fixed PET spatial reference. The quantities being estimated are component response and functional coupling.
+## How PBI works
 
-## Project layout
+![PBI workflow. Observed BOLD supplies the physiological main effect. Adjusted BOLD supplies the deconvolved seed for the task interactions. The target GLM also includes task main effects, confounds and an intercept.](docs/figures/pbi-workflow.svg)
 
-| Directory | Role |
-| --- | --- |
-| [matlab/](matlab/) | MATLAB/SPM implementation and reference workflow |
-| [python/](python/) | Python implementation with no MATLAB/SPM runtime dependency |
-| [resources/pet/](resources/pet/) | PET template catalog, provenance, and sources |
-| [visualization/](visualization/) | Shared plots for quality control and results |
-| [docs/](docs/methods.md) | Model specification and validation targets |
+**Figure 1.** The same fixed biological map supplies spatial weights for two time series. The physiological main effect enters the target model at scan resolution. The deconvolved time series is multiplied by each centered condition at microtime resolution, convolved with the hemodynamic response function (HRF), then sampled at scan times.
 
-The [MATLAB API](matlab/) provides `pbi.task_glm` to estimate a single-session volume task model and `pbi.fit` to run PET-informed gPPI with volume, paired GIFTI or dense CIFTI-2 targets. The template-informed task response workflow, Python implementation and plotting modules are planned.
+1. **Estimate expression of the map.** At each scan, regress the spatial pattern of observed BOLD on the map values and an intercept within the seed mask. The slope is the subject's expression of that spatial pattern at that scan. Its mean-centered time series $s(t)$ is the physiological main effect (`seed_phys_bold` in SPM).
+2. **Build the interactions.** Use the source task GLM to adjust BOLD for effects outside the task effects of interest. Project the adjusted data onto the same map and estimate the latent seed $\beta_{\mathrm{bio}}(\tau)$ on the microtime grid with SPM's `spm_PEB`. The shared temporal model and fixed covariances allow one deconvolution per seed. Multiplying this seed by each centered condition before HRF convolution gives the interaction regressors $I_c(t)$.
+3. **Fit the target BOLD signal.** At each target voxel or vertex $v$, fit the convolved task main effects $P_c(t)$, the observed seed $s(t)$, the interactions $I_c(t)$, and the source nuisance regressors $N(t)$ together:
 
-The MATLAB workflow uses a volume-defined seed for all target geometries. A seed estimated from the cortical surface is a separate analysis choice with different anatomical coverage.
+$$
+Y_v(t) = \alpha_v + \sum_c b_{vc}P_c(t) + \gamma_v s(t) + \sum_c d_{vc}I_c(t) + N(t)\theta_v + \varepsilon_v(t).
+$$
 
-## Related work
+The seed main effect $\gamma_v s(t)$ accounts for coupling shared across conditions. Each $d_{vc}$ estimates how coupling varies with condition $c$ after accounting for that shared signal and the mean task response.
 
-PBI builds on [REACT](https://doi.org/10.1016/j.neuroimage.2019.04.007) and [gPPI](https://doi.org/10.1016/j.neuroimage.2012.03.068). [Wong et al. (2022)](https://doi.org/10.1177/02698811221092509) and [Boucherie et al. (2023)](https://doi.org/10.1177/02698811231211154) describe related task applications.
+For a monetary incentive delay (MID) task, $d_{v,\mathrm{big}}-d_{v,\mathrm{no}}>0$ means the estimated coupling slope at $v$ is higher during big-win anticipation than during no-win anticipation. The biological label identifies the spatial reference for the fMRI component. For example, a 5-HT1A-informed contrast estimates a difference in functional coupling. Establishing a change in serotonin release would require an independent measurement. A separate planned analysis will test whether task conditions predict the scan-level component $s(t)$ itself.
+
+## Quick start with MATLAB
+
+**1. Prepare the inputs.** Put SPM12 and the repository's `matlab` folder on the MATLAB path. Use a single preprocessed 4D BOLD run, a binary gray-matter mask, and one biological template on the same voxel grid. The current seed mask intersects the source GLM mask, gray matter and finite template values **greater than `1e-8`**. This matters for signed gene-expression scores or structural maps with meaningful zero values: the current implementation would drop those locations. Surface-only maps also require a workflow that defines their sampling in the seed volume.
+
+**2. Estimate the task model once.** The example illustrates two anticipation conditions. Replace the example onsets with the subject's events, include all modeled task phases, and supply confounds with one row per scan. Onsets, durations and TR are in seconds. If you already have a compatible estimated `SPM.mat`, use its path as `spmFile` and continue at step 3.
+
+```matlab
+addpath('/path/to/spm12', '/path/to/PBI/matlab');
+conditions = struct('name', {'no_win', 'big_win'}, ...
+    'onset', {[10 42 74], [26 58 90]}, 'duration', {4, 4});
+spmFile = pbi.task_glm('bold.nii.gz', conditions, 2.2, 'task_model', ...
+    Confounds=readmatrix('motion.tsv', 'FileType', 'text'));
+```
+
+**3. Fit PBI and inspect the contrast.** Choose a fresh output directory for each template. Condition names match the source design exactly, so the same contrast works when condition order changes.
+
+```matlab
+bigVsNo = struct('name', 'anticipation_big-no', ...
+    'positive', 'big_win', 'negative', 'no_win');
+result = pbi.fit(spmFile, '5HT1A_template.nii', 'gm_mask.nii', ...
+    'pbi_5HT1A', Contrasts=bigVsNo);
+```
+
+For a volume target, open `pbi_5HT1A/con_0001.nii` for the coupling difference and `spmT_0001.nii` for its T statistic. Inspect `result.phys` and `seed_mask.nii` for the seed, and the output `SPM.mat` for the design. An existing source GLM needs one unmodulated canonical HRF regressor per condition and an F contrast covering the task effects of interest in the first contrast slot. The API guide includes examples for paired GIFTI and mixed CIFTI targets. [MATLAB API guide](matlab/README.md)
+
+## Resources and related work
+
+The [method specification](docs/methods.md) describes the model and validation targets. The [PET resource catalog](resources/pet/) records template space and coverage. A standalone Python implementation and visualization modules are planned.
+
+PBI draws on [REACT](https://doi.org/10.1016/j.neuroimage.2019.04.007) for spatially informed fMRI components and [gPPI](https://doi.org/10.1016/j.neuroimage.2012.03.068) for condition-specific coupling. Related molecularly informed task-fMRI applications include [Wong et al. (2022)](https://doi.org/10.1177/02698811221092509) and [Boucherie et al. (2023)](https://doi.org/10.1177/02698811231211154).

@@ -14,15 +14,15 @@ addpath('/path/to/spm12', '/path/to/PBI/matlab');
 % Two-condition example. Replace the event times and TR with your run's values.
 conditions = struct('name', {'no_win', 'big_win'}, ...
     'onset', {[10 42 74], [26 58 90]}, 'duration', {4, 4});
-motion = readmatrix('motion.tsv');
+motion = readmatrix('motion.tsv', 'FileType', 'text');
 spmFile = pbi.task_glm('bold.nii.gz', conditions, 2.2, 'task_model', Confounds=motion);
 ```
 
 The model uses a canonical HRF, 16 microtime bins with reference bin 1, a 128 s high-pass filter and AR(1) errors. Its first contrast is an omnibus F contrast over the condition columns. SPM retains uncompressed scans at their original path or, for gzip inputs, in the task model directory.
 
-### Fit PET-informed gPPI
+### Fit PBI with a biological map
 
-`pbi.fit` takes an estimated task model, a PET template, a binary gray matter mask, and a fresh PBI output directory. Use aligned NIfTI volumes on the BOLD grid and a PET template with its reference regions excluded. Reuse the same task model for each PET template, choosing a separate output directory for each fit.
+`pbi.fit` takes an estimated task model, a biological template, a binary gray matter mask, and a fresh PBI output directory. Use aligned NIfTI volumes on the BOLD grid. The seed mask retains finite template values greater than `1e-8`. For a PET template, exclude reference regions as appropriate. Reuse the same task model for each template, choosing a separate output directory for each fit.
 
 ```matlab
 bigVsNo = struct('name', 'anticipation_big-no', ...
@@ -32,21 +32,21 @@ gmMask = 'gm_mask.nii';
 PBI = pbi.fit(spmFile, petMap, gmMask, 'pbi_model', Contrasts=bigVsNo);
 ```
 
-You can also pass an existing single-session `SPM.mat` directly. It must have one canonical HRF basis function, one unmodulated regressor per condition, and the task effects of interest as its first F contrast. Keep the beta images, `mask.nii`, and original scan paths accessible.
+You can also pass an existing single-session `SPM.mat` directly. It must have one canonical HRF basis function, one unmodulated regressor per condition, and the task effects of interest as its first contrast (an F contrast). Keep the beta images, `mask.nii`, and original scan paths accessible.
 
 Use the exact, case-sensitive condition names from `SPM.Sess.U`. The example estimates the `big_win` interaction coefficient minus the `no_win` interaction coefficient in any column order. Other conditions, main effects and nuisance columns receive zero weight. Supply several contrasts as a struct array, or omit `Contrasts` to estimate the design alone.
 
 For a weighted combination, pair each weight with a named condition. For example, the mean of big and small win versus no win can be written as `struct('name', 'mean_win-no', 'conditions', ["big_win","small_win","no_win"], 'weights', [0.5 0.5 -1])`.
 
-- The returned struct and `PBI.mat` contain the mean-centered observed BOLD projection (`phys`), the microtime seed (`seed_microtime`), condition columns, and condition-specific interactions. For the microtime seed, PBI projects the SPM-adjusted BOLD onto the same PET weights and deconvolves that series once. The shared design, fixed covariances, and zero prior mean make this equivalent to projecting the voxelwise deconvolutions.
-- `seed_mask.nii` records the voxels used for both PET projections.
+- The returned struct and `PBI.mat` contain the mean-centered observed BOLD projection (`phys`), the microtime seed (`seed_microtime`), condition columns, and condition-specific interactions. For the microtime seed, PBI projects the SPM-adjusted BOLD onto the same template weights and deconvolves that series once. The shared design, fixed covariances, and zero prior mean make this equivalent to projecting the voxelwise deconvolutions.
+- `seed_mask.nii` records the voxels used for both template projections.
 - The final `SPM.mat` includes task main effects, `seed_phys_bold`, interactions, and any source nuisance columns. SPM writes `con_*.nii` and `spmT_*.nii` for requested interaction contrasts.
 
 See the [model specification](../docs/methods.md) for the interpretation of the interaction coefficients.
 
 ### Fit surface or grayordinate targets
 
-Use the same source volume GLM, PET map and gray matter mask as above. `TargetBold` changes where PBI estimates coupling. The seed and interactions still come from the source volume run. Supply the same acquisition and retained frames in the same order, with compatible preprocessing. Use baseline-preserving BOLD suitable for SPM's intensity scaling and masking. Include the matching left and right anatomical meshes (for example midthickness); the mesh must have the same registration, vertex count and vertex order as its functional data.
+Use the same source volume GLM, biological map and gray matter mask as above. `TargetBold` changes where PBI estimates coupling. The seed and interactions still come from the source volume run. Supply the same acquisition and retained frames in the same order, with compatible preprocessing. Use baseline-preserving BOLD suitable for SPM's intensity scaling and masking. Include the matching left and right anatomical meshes (for example midthickness); the mesh must have the same registration, vertex count and vertex order as its functional data.
 
 **GIFTI** — pass the left and right time series and their meshes in that order. This example uses fsaverage5.
 

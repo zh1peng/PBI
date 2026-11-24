@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="474" viewBox="0 0 980 474" role="img" aria-labelledby="title desc">
+  <title id="title">Psychobiological interaction in task fMRI</title>
+  <desc id="desc">The same fixed biological map is projected onto observed and adjusted BOLD. Observed seed expression is a physiological main effect. The adjusted projection is deconvolved, multiplied by each centered task condition, convolved with the HRF and sampled at scan times. The target GLM fits these interactions with task and physiological main effects, nuisance regressors and an intercept.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 10 5 0 10z" fill="#647782"/></marker>
+    <style>
+      text {font-family:Arial,Helvetica,sans-serif;fill:#172f3a}
+      .heading {font-size:22px;font-weight:bold}
+      .label {font-size:18px;font-weight:bold}
+      .note {font-size:15px;fill:#3b5360}
+      .rule {stroke:#d5e0e2}
+      .arrow {stroke:#647782;stroke-width:2;fill:none;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="980" height="474" rx="14" fill="#fafcfc"/>
+  <g transform="translate(24 21)">
+    <text y="20" class="heading">Construct regressors from the source run</text>
+    <path d="M0 33H553" class="rule"/>
+    <text x="624" y="20" class="heading">Target BOLD model</text>
+    <path d="M624 33H932" class="rule"/>
+
+    <g transform="translate(0 51)">
+      <rect width="553" height="65" rx="8" fill="#e0f1ee"/>
+      <text x="16" y="25" class="label">Project observed BOLD onto the biological map</text>
+      <text x="16" y="49" class="note">Spatial regression at each scan → mean-center the slope series</text>
+      <path d="M562 32H611" class="arrow"/>
+      <rect x="624" width="308" height="65" rx="8" fill="#e0f1ee"/>
+      <text x="640" y="25" class="label">Physiological main effect</text>
+      <text x="640" y="49" class="note">Observed seed · seed_phys_bold</text>
+    </g>
+
+    <g transform="translate(0 125)">
+      <rect width="553" height="97" rx="8" fill="#fcebe2"/>
+      <text x="16" y="25" class="label">Project adjusted BOLD onto the same map</text>
+      <text x="16" y="49" class="note">Apply PEB deconvolution → multiply by a centered condition</text>
+      <text x="16" y="74" class="note">Convolve the product with the HRF → sample at scan times</text>
+      <path d="M562 48H611" class="arrow"/>
+      <rect x="624" width="308" height="97" rx="8" fill="#fcebe2"/>
+      <text x="640" y="42" class="label">PBI interactions</text>
+      <text x="640" y="67" class="note">One column per condition</text>
+    </g>
+
+    <g transform="translate(0 231)">
+      <rect width="553" height="59" rx="8" fill="#e8eef6"/>
+      <text x="16" y="24" class="label">Task conditions</text>
+      <text x="16" y="45" class="note">Convolve each condition with the HRF and sample at scan times</text>
+      <path d="M562 29H611" class="arrow"/>
+      <rect x="624" width="308" height="59" rx="8" fill="#e8eef6"/>
+      <text x="640" y="36" class="label">Task main effects</text>
+    </g>
+
+    <g transform="translate(0 299)">
+      <rect width="553" height="45" rx="8" fill="#edf0f0"/>
+      <text x="16" y="29" class="label">Source nuisance regressors</text>
+      <path d="M562 22H611" class="arrow"/>
+      <rect x="624" width="308" height="45" rx="8" fill="#edf0f0"/>
+      <text x="640" y="29" class="label">Confounds + intercept</text>
+    </g>
+
+    <path d="M778 349v17" class="arrow"/>
+    <rect y="373" width="932" height="58" rx="8" fill="#163942"/>
+    <text x="16" y="397" style="font-size:18px;font-weight:bold;fill:white">Contrast the PBI coefficients between task conditions</text>
+    <text x="16" y="419" style="font-size:15px;fill:#d7eaeb">Example: big-win anticipation − no-win anticipation → a map of the difference in seed–target coupling</text>
+  </g>
+</svg>
